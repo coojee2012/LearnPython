@@ -1,18 +1,18 @@
 # 第二天 开发环境和语法基础（1）
 
 今天主要计划学习用VSCode搭建开发环境及Python语法基础
-学习涉及到的源码地址：[https://github.com/coojee2012/LearnPython]
+学习涉及到的源码地址：[GitHub源码](https://github.com/coojee2012/LearnPython)
 
 ## 使用VSCode打造Python开发环境
 可以用来开发Python的开发工具很多，我选择了VSCode,原因很简单，因为它是跨平台的，而且免费的。
 
 - 下载安装VS Code
   
-  从VSCode官方网站 [https://code.visualstudio.com/]下载自己喜欢的工作环境的版本进行安装，很简单在这里就不多说了。
+  从VSCode[官方网站](https://code.visualstudio.com/)下载自己喜欢的工作环境的版本进行安装，很简单在这里就不多说了。
 
 - 安装Python环境
   
-  从Python官网[https://www.python.org/downloads]下载适合自己开发环境的Python3.x版本进行安装.
+  从Python官网[Python官网](https://www.python.org/downloads)下载适合自己开发环境的Python3.x版本进行安装.
 
 - 配置VSCode开发Python
 
