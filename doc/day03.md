@@ -1,6 +1,8 @@
 # 第二天 语法基础：元祖、字典、集合、控制语句（2）
 
-今天继续学习Python的一些基础数据结构和控制语句的语法
+今天继续学习Python的一些基础数据结构和控制语句的语法。
+
+学习项目及练习源码地址：[GitHub源码](https://github.com/coojee2012/LearnPython)
 
 ## 元祖tuple
 
@@ -452,6 +454,8 @@ False、0、0.0、空值None、空序列对象(空列表、空元祖、空集合
 
 
 ### 练习
+
+练习答案前往[GitHub源码](https://github.com/coojee2012/LearnPython)查询。
 
 - 用for循环计算1-100的和，偶数和，奇数和 [练习](./../src/lx001.py)
 - 循环嵌套打印九九乘法表[练习](./../src/lx002.py)
