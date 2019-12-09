@@ -20,7 +20,7 @@ Python中的函数必须先定义才能调用。
 
     第三方库函数对象创建和标准库一致，在import模块时创建。
 
-    别个整理的一个常用三方库思维导图:![三方库思](https://cdn.jsdelivr.net/gh/coojee2012/LearnPython/doc/public_lib.jpeg)
+    别个整理的一个常用三方库思维导图:![三方库](https://cdn.jsdelivr.net/gh/coojee2012/LearnPython/doc/public_lib.jpeg)
 
 - 自定义函数
   
