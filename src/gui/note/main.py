@@ -32,6 +32,11 @@ class Note(tkinter.Frame):
         root.bind("<Control-s>",lambda event:self.savefile()) 
         root.bind("<Control-q>",lambda event:self.exit())
 
+        menu.bindMenuFile(newfile=self.newfile,
+        openfile=self.openfile,
+        savefile=self.savefile,
+        exit=self.exit)
+
         self.root["menu"] = self.mainMenu
 
     def newfile(self):
