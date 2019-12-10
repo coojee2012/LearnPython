@@ -444,4 +444,3 @@ ZeroDivisionError|除(或取模)零 (所有数据类型)
     
     就如同Python和wxWidgets一样，wxPython也是一款开源软件，并且具有非常优秀的跨平台能力，能够支持运行在32 [1]  /64位windows、绝大多数的Unix或类Unix系统、Macintosh OS X下。
 
-### Tkinter编写一个GUI程序
