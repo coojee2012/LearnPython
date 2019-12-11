@@ -42,4 +42,11 @@ class QuickMenu:
     快捷菜单
     '''
     def __init__(self,root):
-        pass
+        self.root =root
+        self.menu = None
+    def createWidget(self):
+        self.menu = tkinter.Menu(self.root)
+
+    def bindMenu(self,changeBG):
+        self.menu.add_command(label="背景颜色", command=changeBG)
+
