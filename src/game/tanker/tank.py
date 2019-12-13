@@ -1,11 +1,15 @@
 import pygame
 import sys,os,random
 from config import *
-class Tank:
+from bullet import Bullet
+from base_sprite import BaseSprite
+
+class Tank(BaseSprite):
     def __init__(self,window,left,top):
         self.window = window
         self.speed = 5
         self.stop = True
+        self.live = True
         self.images = {
             'U':pygame.image.load(os.path.join(sys.path[0],'img/p1tankU.gif')),
             'D':pygame.image.load(os.path.join(sys.path[0],'img/p1tankD.gif')),
@@ -20,12 +24,17 @@ class Tank:
         # 初始化图像显示的x,y轴
         self.rect.left = left
         self.rect.top = top
+
+        self.oldLeft = self.rect.left
+        self.oldTop = self.rect.top
     def displayTank(self):
         # 重新设定显示的tank图片，改变方向使用 
         self.image = self.images[self.direction]
         self.window.blit(self.image,self.rect)
     #坦克的移动方法 
     def move(self):
+        self.oldLeft = self.rect.left
+        self.oldTop = self.rect.top
 
         if self.direction == 'L': 
             if self.rect.left > 0:
@@ -39,6 +48,26 @@ class Tank:
         elif self.direction == 'D':
             if self.rect.top + self.rect.height < SCREEN_HEIGT: 
                 self.rect.top += self.speed
+    
+    def shot(self):
+        return Bullet(self)
+
+    def stay(self):
+        self.rect.left = self.oldLeft 
+        self.rect.top = self.oldTop
+    
+    def hitWalls(self,walls):
+        for wall in walls:
+            if pygame.sprite.collide_rect(wall,self):
+                self.stay()
+    def hitTank(self,etanks,p1):
+        if pygame.sprite.collide_rect(p1,self) and p1 is not self:
+                self.stay()
+        for eTank in etanks:
+            if pygame.sprite.collide_rect(eTank,self) and eTank is not self:
+                #print("敌军坦克可以穿过任何坦克！这样才好玩！！！！")
+                #self.stay()
+                pass
 
 
 class EnemyTank(Tank):
@@ -48,6 +77,7 @@ class EnemyTank(Tank):
         self.speed = speed
         self.stop = True
         self.step = 0
+        self.live = True
         self.images = {
             'U':pygame.image.load(os.path.join(sys.path[0],'img/enemy1U.gif')),
             'D':pygame.image.load(os.path.join(sys.path[0],'img/enemy1D.gif')),
@@ -62,6 +92,9 @@ class EnemyTank(Tank):
         # 初始化图像显示的x,y轴
         self.rect.left = left
         self.rect.top = top
+        self.oldLeft = self.rect.left
+        self.oldTop = self.rect.top
+
     def displayTank(self):
         # 重新设定显示的tank图片，改变方向使用 
         self.image = self.images[self.direction]
@@ -78,6 +111,7 @@ class EnemyTank(Tank):
             return 'L' 
         elif num == 4: 
             return 'R'
+    
     def randMove(self): 
         if self.step <= 0:
             self.direction = self.randDirection()
@@ -85,3 +119,8 @@ class EnemyTank(Tank):
         else:
             self.move() 
             self.step -= 1
+    
+    def shot(self):
+        num = random.randint(1,1000) 
+        if num <= 20:
+            return Bullet(self)
