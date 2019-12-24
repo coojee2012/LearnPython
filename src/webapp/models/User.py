@@ -1,6 +1,7 @@
 import time,uuid
 from models.utils import next_id
-from orm.orm import Model, StringField, IntegerField,BooleanField,FloatField,TextField
+from orm.Model import Model
+from orm.ModelFields import StringField, IntegerField,BooleanField,FloatField,TextField
 
 class User(Model):
     __table__ = 'users'
