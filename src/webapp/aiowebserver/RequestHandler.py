@@ -2,8 +2,8 @@ import logging
 from urllib import parse
 from aiohttp import web
 
-from web.utils import has_request_arg,has_var_kw_arg,has_named_kw_args,get_named_kw_args,get_required_kw_args
-from web.api_errors import APIError
+from aiowebserver.utils import has_request_arg,has_var_kw_arg,has_named_kw_args,get_named_kw_args,get_required_kw_args
+from aiowebserver.api_errors import APIError
 class RequestHandler(object):
 
     def __init__(self, app, fn):

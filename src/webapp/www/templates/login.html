@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %} 恐惧伴随着惊悚 {% endblock %}
+
+{% block content %}
+<div class="modal-body">
+    <form class="form-group" action="">
+            <div class="form-group">
+                <label for="">用户名</label>
+                <input class="form-control" type="text" placeholder="">
+            </div>
+            <div class="form-group">
+                <label for="">密码</label>
+                <input class="form-control" type="password" placeholder="">
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary" type="submit">登录</button>
+                <button class="btn btn-danger" data-dismiss="modal">取消</button>
+            </div>
+            还没有账号？<a href="/u/register" >点我注册</a>
+    </form>
+</div>
+{% endblock %}
