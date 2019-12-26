@@ -4,20 +4,44 @@
 
 {% block content %}
 <div class="modal-body">
-    <form class="form-group" action="">
+    <form class="form-group" id="login_form">
             <div class="form-group">
-                <label for="">用户名</label>
-                <input class="form-control" type="text" placeholder="">
+                <label for="username">用户名</label>
+                <input class="form-control" id="username" name="username" type="text" placeholder="">
             </div>
             <div class="form-group">
-                <label for="">密码</label>
-                <input class="form-control" type="password" placeholder="">
+                <label for="password">密码</label>
+                <input class="form-control" type="password" id="password" name="password" placeholder="">
             </div>
             <div class="text-right">
-                <button class="btn btn-primary" type="submit">登录</button>
-                <button class="btn btn-danger" data-dismiss="modal">取消</button>
+                <a href="javascript:void(0);" id="u_login">登录</a>
+                <a href="/">取消</a>
             </div>
-            还没有账号？<a href="/u/register" >点我注册</a>
+            还没有账号？<a href="/u/register">点我注册</a>
     </form>
 </div>
+{% endblock %}
+
+{% block morejs %}
+<script>
+    $(document).ready(function () {
+        $('#u_login').click(function () {
+            var data = {};
+            var t = $('#login_form').serializeArray();
+            //t的值为[{name: "a1", value: "xx"},
+            //{name: "a2", value: "xx"}...]
+            $.each(t, function () {
+                data[this.name] = this.value;
+            });
+            axios.post('/u/login',data)
+            .then(res=>{
+                location.href = '/'
+            })
+            .catch(err=>{
+                console.log(err)
+            })
+            
+        })
+    })
+</script>
 {% endblock %}

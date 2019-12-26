@@ -25,7 +25,7 @@
             <a href="javascript:void(0);" id="u_register">开始注册</a>
             <a>不注册了</a>
         </div>
-        <a href="/login">已有账号？点我登录</a>
+        <a href="/u/login">已有账号？点我登录</a>
     </form>
 </div>
 {% endblock %}
@@ -43,7 +43,7 @@
             });
             axios.post('/u/register',data)
             .then(res=>{
-                console.log(res)
+                location.href = '/'
             })
             .catch(err=>{
                 console.log(err)

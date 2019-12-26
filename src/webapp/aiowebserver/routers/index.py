@@ -5,8 +5,13 @@ from aiowebserver.utils import get,post
 
 @get('/')
 def index(request):
-    context = {'register': 'Andrew', 'surname': 'Svetlov'}
-    response = aiohttp_jinja2.render_template('index.html',request,context)
-    response.headers['Content-Language'] = 'ru'
-    return response
+    # context = {'register': 'Andrew', 'surname': 'Svetlov'}
+    # response = aiohttp_jinja2.render_template('index.html',request,context)
+    # response.headers['Content-Language'] = 'ru'
+    # return response
+    return {
+        '__template__':'index.html',
+        'register': 'Andrew',
+        'surname': 'Svetlov'
+    }
 

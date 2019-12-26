@@ -26,6 +26,20 @@ def post(path):
         return wrapper
     return decorator
 
+# def login_required(func):  # 用户登录状态校验
+#     """This function applies only to class views."""
+#     @functools.wraps(func)
+#     async def inner(cls, *args, **kwargs):
+#         session = await get_session(cls.request)
+#         uid = session.get("uid")
+#         if uid:
+#             user = await fetchone('select id, name, email, phone from user where id = %s', (uid,))
+#             cls.request.app.userdata = user
+#             return await func(cls, *args, **kwargs)
+#         else:
+#             return web.Response(status=302, headers={'location': '/login'})
+
+#     return inner
 def get_required_kw_args(fn):
     args = []
     params = inspect.signature(fn).parameters

@@ -68,8 +68,6 @@ class Model(dict, metaclass=ModelMetaclass):
             return None
         return rs[0]['_num_']
     
-
-
     @classmethod
     async def find(cls, pk):
         ' find object by primary key. '

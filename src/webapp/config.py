@@ -13,7 +13,10 @@ class Conf:
         self.redis = type("redis", (object,), {
             "host": os.getenv("REDIS_HOST", "127.0.0.1"),
             "port": int(os.getenv("REDIS_PORT", "6379")),
-            "password": os.getenv("REDIS_PASSWORD", "123456"),
+            "password": os.getenv("REDIS_PASSWORD", "test"), # 空位None
+            "db": os.getenv("REDIS_DB", None),
+            "maxsize": int(os.getenv("REDIS_MAXSIZE", "10")),
+            "minsize": int(os.getenv("REDIS_MINSIZE", "1")),
         })
         self.mysql = type("mysql", (object,), {
             "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
@@ -23,8 +26,8 @@ class Conf:
             "database": os.getenv("MYSQL_DATABASE", "awesome"),
             "charset": os.getenv("MYSQL_CHARSET", "utf8"),
             "autocommit": os.getenv("MYSQL_AUTOCOMMIT", "True"),
-            "maxsize": os.getenv("MYSQL_MAXSIZE", "10"),
-            "minsize":os.getenv("MYSQL_MINSIZE", "1"),
+            "maxsize": int(os.getenv("MYSQL_MAXSIZE", "10")),
+            "minsize": int(os.getenv("MYSQL_MINSIZE", "1")),
         })
 
 config = Conf()

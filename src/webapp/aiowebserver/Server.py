@@ -1,10 +1,14 @@
 
-import asyncio, os, inspect, logging, functools,sys,re
+import asyncio, os, inspect,json, logging, functools,sys,re
 from aiowebserver.RequestHandler import RequestHandler
 from config import config
 from aiohttp import web
-import jinja2,aiohttp_jinja2
+# import jinja2,aiohttp_jinja2
+from jinja2 import Environment, FileSystemLoader
 from db.Dmysql import mysql
+from db.Dredis import redis
+from aiohttp_session import setup, get_session
+from aiohttp_session.redis_storage import RedisStorage
 
 class Server:
     def __init__(self):
@@ -14,12 +18,14 @@ class Server:
     def start(self):
         self.loop = asyncio.get_event_loop()
         self.app = web.Application(loop=self.loop, middlewares=[
-            logger_factory
+            logger_factory,
+            data_factory
         ])
 
         self.add_routes_dir(config.app.routedir)
         self.add_static(config.app.static)
-        aiohttp_jinja2.setup(self.app, loader=jinja2.FileSystemLoader(config.app.templetdir))
+        self.init_jinja2()
+        # aiohttp_jinja2.setup(self.app, loader=jinja2.FileSystemLoader(config.app.templetdir))
 
         self.app.on_startup.append(self.init_pre)
         self.app.on_cleanup.append(self.on_close)
@@ -28,16 +34,41 @@ class Server:
         print('server is done!')
 
 
+    def init_jinja2(self, **kw):
+        logging.info('init jinja2...')
+        options = dict(
+            autoescape = kw.get('autoescape', True),
+            block_start_string = kw.get('block_start_string', '{%'),
+            block_end_string = kw.get('block_end_string', '%}'),
+            variable_start_string = kw.get('variable_start_string', '{{'),
+            variable_end_string = kw.get('variable_end_string', '}}'),
+            auto_reload = kw.get('auto_reload', True)
+        )
+        # path = kw.get('path', None)
+        # if path is None:
+        #     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+        # logging.info('set jinja2 template path: %s' % path)
+        env = Environment(loader=FileSystemLoader(config.app.templetdir), **options)
+        filters = kw.get('filters', None)
+        if filters is not None:
+            for name, f in filters.items():
+                env.filters[name] = f
+        self.app['__templating__'] = env
+    
     async def init_pre(self,app):
         '''
         启动前的初始化工作
         '''
-        print(app,self.app)
         await mysql.initpool(loop=self.loop)
+        await redis.init_pool(loop=self.loop)
+        redis_pool = redis.get_pool()
+        storage = RedisStorage(redis_pool)
+        setup(app, storage)
+        app.middlewares.append(response_factory) #一定要放在session的后面  先执行这个
     
     async def on_close(self,app):
-        print('close....',app)
         await mysql.closepool()
+        await redis.close()
 
     def add_static(self,path):
         self.app.router.add_static('/static/', path)
