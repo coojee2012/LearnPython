@@ -9,6 +9,7 @@ class Conf:
             "static":os.path.join(os.path.dirname(os.path.abspath(__file__)),'www', 'static'),
             "routedir": os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aiowebserver','routers'),
             "templetdir":os.path.join(os.path.dirname(os.path.abspath(__file__)),'www', 'templates'),
+            "uploaddir":os.path.join(os.path.dirname(os.path.abspath(__file__)),'www', 'static','uploads'),
         })
         self.redis = type("redis", (object,), {
             "host": os.getenv("REDIS_HOST", "127.0.0.1"),

@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %} 恐惧伴随着惊悚 {% endblock %}
+
+{% block content %}
+<style>
+
+#doc-app{display:none;}
+#doc-app .toolbar {padding-bottom:10px;}
+#doc-app .tox .tox-toolbar{background:none;}
+#doc-app .tox-tinymce-inline .tox-editor-header{border:none;}
+#doc-app .tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type):after{border:none;}
+#doc-app .box {padding:10px;border:1px solid #ddd;}
+#doc-app .tit{padding-bottom:10px;}
+#doc-app .tit input{font-size:24px;padding:8px 8px;width:100%;box-sizing:border-box;border:none;box-shadow:none;background-color:#fefefe;color:#777;border-bottom:1px dotted #ccc;}
+#doc-app .doc-cnt{min-height:300px;max-height:500px;overflow:auto;font-size:16px;padding:0.5em;}
+#doc-app .doc-cnt:focus{outline:0;}
+#doc-app .doc-cnt p{text-indent:0;}
+            
+</style>
+<div class="modal-body">   
+    <form class="form-group"  id="content_form">
+            <div id="doc-app" style="display: block;">
+                <div class="toolbar"></div>
+                <div class="box">
+                    <div class="tit"><input type="text" id="b_title" placeholder="请输入标题……" /></div>
+                    <div class="doc-cnt mce-content-body mce-edit-focus" id="tinydemo-doc" contenteditable="true" spellcheck="false" style="position: relative;"><blockquote><ul><li style="text-align: justify;" data-mce-style="text-align: justify;">在这里输入文字</li></ul></blockquote></div>
+                </div>
+            </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block morejs %}
+<script src="/static/tinymce/tinymce.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        var uploadImage = function (blobInfo, succFun, failFun) { 
+            var file = blobInfo.blob();//转化为易于理解的file对象
+            var formData = new FormData();
+            formData.append('file', file, file.name );//此处与源文档不一样
+         
+            console.log(formData.get('file')); //FormData私有类对象，访问不到，可以通过get判断值是否传进去
+            var config = {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            };  //添加请求头
+            axios.post('/upload', formData, config)
+                .then(response => {        
+                    console.log(response.data);
+                    succFun(response.data.filename);
+                })
+                .catch(error=>{
+                    failFun(error)
+                })
+        }
+        
+        var saveConent =  function (el) {
+            // do the work on html
+            var title = $('#b_title').val();
+            var content = el.getContent()
+            
+            var data = {
+                title: title || "",
+                content: content || ""
+            } 
+            console.log(data);
+            axios.post('/b/0',data)
+            .then(res=>{
+                console.log(res);
+            })
+            .catch(err=>{
+                console.log(err);
+            })
+        }
+        tinymce.init({
+                selector: '#tinydemo-doc',
+                language:'zh_CN',
+                menubar:false,
+                inline: true,
+                plugins: 'preview searchreplace autolink fullscreen image link media code codesample table charmap hr pagebreak nonbreaking anchor advlist lists textpattern help emoticons autosave save',
+                toolbar: 'code undo redo restoredraft | cut copy | forecolor backcolor bold italic underline strikethrough link | alignleft aligncenter alignright alignjustify | bullist numlist blockquote subscript superscript removeformat | \
+                    formatselect fontselect fontsizeselect | \
+                    table image media charmap emoticons hr pagebreak  preview | fullscreen | save',
+                fixed_toolbar_container:'#doc-app .toolbar',
+                custom_ui_selector: 'body',
+                //auto_focus: true,
+                toolbar_drawer: false,
+                toolbar_sticky: true,
+                autosave_ask_before_unload: true,
+                autosave_interval:'10s',
+                fontsize_formats: '12px 14px 16px 18px 24px 36px 48px 56px 72px',
+                font_formats: '微软雅黑=Microsoft YaHei,Helvetica Neue,PingFang SC,sans-serif;苹果苹方=PingFang SC,Microsoft YaHei,sans-serif;宋体=simsun,serif;仿宋体=FangSong,serif;黑体=SimHei,sans-serif;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Comic Sans MS=comic sans ms,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Impact=impact,chicago;Symbol=symbol;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Verdana=verdana,geneva;Webdings=webdings;Wingdings=wingdings,zapf dingbats;知乎配置=BlinkMacSystemFont, Helvetica Neue, PingFang SC, Microsoft YaHei, Source Han Sans SC, Noto Sans CJK SC, WenQuanYi Micro Hei, sans-serif;小米配置=Helvetica Neue,Helvetica,Arial,Microsoft Yahei,Hiragino Sans GB,Heiti SC,WenQuanYi Micro Hei,sans-serif',
+                images_upload_base_path: '/static/uploads/',
+                images_upload_handler: uploadImage,
+                init_instance_callback: function(editor){
+                    $('#doc-app').fadeIn(1500);
+                    editor.execCommand('selectAll');
+                    editor.selection.getRng().collapse(false);
+                    editor.focus();
+                },
+                //自定义文件选择器的回调内容
+                file_picker_callback: function (callback, value, meta) {
+                    if (meta.filetype === 'file') {
+                    callback('https://www.baidu.com/img/bd_logo1.png', { text: 'My text' });
+                    }
+                    if (meta.filetype === 'image') {
+                    callback('https://www.baidu.com/img/bd_logo1.png', { alt: 'My alt text' });
+                    }
+                    if (meta.filetype === 'media') {
+                    callback('movie.mp4', { source2: 'alt.ogg', poster: 'https://www.baidu.com/img/bd_logo1.png' });
+                    }
+                },
+                save_onsavecallback: saveConent
+               
+            });
+            
+        
+    })
+</script>
+{% endblock %}

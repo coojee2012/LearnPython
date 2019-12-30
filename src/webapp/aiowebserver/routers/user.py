@@ -1,6 +1,7 @@
 import re,hashlib,json
 import aiohttp_jinja2
 from aiohttp import web
+from aiohttp_session import get_session
 from aiowebserver.utils import get,post
 from aiowebserver.api_errors import APIValueError,APIError
 from models.User import User
@@ -49,6 +50,16 @@ def login_view(request):
         'surname': 'Svetlov'
     }
 
+@get('/u/logout')
+async def login_out(request):
+    session = await get_session(request)
+    session['uid'] = None
+    return {
+        '__template__':'index.html',
+        'not_login': True,
+        'surname': 'Svetlov'
+}
+
 @post('/u/login')
 async def login(*,username,password,request):
     if not username or not username.strip():
@@ -65,6 +76,8 @@ async def login(*,username,password,request):
     passwd=hashlib.sha1(sha1_passwd.encode('utf-8')).hexdigest()
 
     if users[0]['passwd'] == passwd:
+        session = await get_session(request)
+        session['uid'] = uid
         return {
            'success':True
         }
