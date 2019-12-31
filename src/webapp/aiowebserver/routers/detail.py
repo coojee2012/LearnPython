@@ -1,14 +1,12 @@
 from aiowebserver.utils import get,post
 
+from models.Blog import Blog
 
 @get('/a/{id}')
-def detail(id,request):
-    # context = {'register': 'Andrew', 'surname': 'Svetlov'}
-    # response = aiohttp_jinja2.render_template('detail.html',request,context)
-    # response.headers['Content-Language'] = 'ru'
-    # return response
+async def detail(id,request):
+    blogs = await Blog.findAll('id=?', [id],limit=1)
+
     return {
         '__template__':'detail.html',
-        'register': 'Andrew',
-        'surname': 'Svetlov'
+        'blog': blogs[0]
     }

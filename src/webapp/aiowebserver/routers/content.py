@@ -1,22 +1,50 @@
 import re,hashlib,json,os
 import aiohttp_jinja2
 from aiohttp import web
+from aiohttp_session import get_session
+
 from aiowebserver.utils import get,post,short_uuid
 from aiowebserver.api_errors import APIValueError,APIError
 from config import config
+
+from models.Blog import Blog
 
 @get('/b/write')
 def detail(request):
     return {
         '__template__':'content.html',
-        'register': 'Andrew',
-        'surname': 'Svetlov'
     }
 
 @post('/b/{id}')
 async def save_content(*,id,title,content,request):
-    result = {'success':False}
-    return result
+    if not title or not title.strip():
+        raise APIValueError('title')
+    if not content or not content.strip():
+        raise APIValueError('content')
+    session = await get_session(request)
+    uid = session.get('uid')
+    if not uid:
+        return {'success':False,'msg':'please login.'}
+    if id == '0':
+        blog = Blog(
+            user_id = uid,
+            user_name = '',
+            user_image = '',
+            name = title,
+            summary = '',
+            content = content
+        )
+        await blog.save()
+        return {'success':True,'blog_id':blog.id}
+    else:
+        blogs = await Blog.findAll('id=?', [id])
+        if len(blogs) != 1:
+            raise APIError('update:failed', 'id', 'id is not find.')
+        blog = blogs[0]
+        blog.name = title
+        blog.content = content
+        await blog.update()
+        return {'success':True,'blog_id':blog.id}
 
 @post('/upload')
 async def storefile(request):

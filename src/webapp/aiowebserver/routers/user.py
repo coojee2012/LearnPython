@@ -19,8 +19,6 @@ def register_view(request):
     # return response
     return {
         '__template__':'register.html',
-        'register': 'Andrew',
-        'surname': 'Svetlov'
     }
 
 @post('/u/register')
@@ -46,19 +44,15 @@ async def registe(*,username,password,request,**kw):
 def login_view(request):
     return {
         '__template__':'login.html',
-        'register': 'Andrew',
-        'surname': 'Svetlov'
     }
 
-@get('/u/logout')
+@post('/u/logout')
 async def login_out(request):
     session = await get_session(request)
     session['uid'] = None
     return {
-        '__template__':'index.html',
-        'not_login': True,
-        'surname': 'Svetlov'
-}
+        'success':True,
+    }
 
 @post('/u/login')
 async def login(*,username,password,request):

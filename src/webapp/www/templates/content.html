@@ -20,10 +20,14 @@
 </style>
 <div class="modal-body">   
     <form class="form-group"  id="content_form">
+            
             <div id="doc-app" style="display: block;">
                 <div class="toolbar"></div>
                 <div class="box">
-                    <div class="tit"><input type="text" id="b_title" placeholder="请输入标题……" /></div>
+                    <div class="tit">
+                        <input type="hidden" id="b_id" value="" />
+                        <input type="text" id="b_title" placeholder="请输入标题……" />
+                    </div>
                     <div class="doc-cnt mce-content-body mce-edit-focus" id="tinydemo-doc" contenteditable="true" spellcheck="false" style="position: relative;"><blockquote><ul><li style="text-align: justify;" data-mce-style="text-align: justify;">在这里输入文字</li></ul></blockquote></div>
                 </div>
             </div>
@@ -58,16 +62,18 @@
         var saveConent =  function (el) {
             // do the work on html
             var title = $('#b_title').val();
+            var bid = $("#b_id").val() || '0'
             var content = el.getContent()
             
             var data = {
                 title: title || "",
                 content: content || ""
             } 
-            console.log(data);
-            axios.post('/b/0',data)
+            console.log(data,bid);
+            axios.post(`/b/${bid}`,data)
             .then(res=>{
-                console.log(res);
+                $('#b_id').val(res.data.blog_id);
+                console.log(res, $("#b_id").val());
             })
             .catch(err=>{
                 console.log(err);
