@@ -1,11 +1,11 @@
-import logging; logging.basicConfig(level=logging.INFO)
+import logging
 import asyncio,aiomysql
 import traceback
 from config import config
 '''
 mysql 异步版本
 '''
-
+logging.basicConfig(level=logging.DEBUG)
 logobj = logging.getLogger('mysql')
 class Dmysql:
     def __init__(self):
@@ -26,6 +26,7 @@ class Dmysql:
                     maxsize = int(config.mysql.maxsize),
                     minsize = int(config.mysql.minsize),
                     loop = loop)
+            logobj.debug("connected mysql~")
         except:
             logobj.error('connect error.', exc_info=True)
 

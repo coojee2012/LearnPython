@@ -1,7 +1,8 @@
-import asyncio
+import asyncio,re
 from kospider.Spider import Spider
 from kospider.Seed import Seed
-
+from kospider.selectors import Xpath
+from kospider.logger import get_logger
 
 dict_filter = {
     # 旅行·在路上
@@ -21,7 +22,8 @@ dict_filter = {
     # # # 运动&健身
     'snqjhw': "体育",
     # # 摄影
-    '7b2be866f564': "旅游"
+    '7b2be866f564': "旅游",
+    'e048f1a72e3d': "简书大学堂"
 }
 
 headers_ = {
@@ -32,14 +34,40 @@ headers_ = {
 class JianShu(Spider):
     def __init__(self,queue):
         self.q = queue
+        self.logger = get_logger('JianShu Spider')
 
     async def start(self):
-        print('JianShu Spider start')
+        self.logger.info('JianShu Spider start')
         await asyncio.sleep(0.3)
         for url in dict_filter:
             seed = Seed('http://www.jianshu.com/c/{}'.format(url),self.next_parse,headers=headers_)
             self.q.put_nowait(seed)
-        print('JianShu Spider end')
+            await asyncio.sleep(1)
+        self.logger.info('JianShu Spider end')
 
     async def next_parse(self,data):
-        print(data)
+        try:
+            selector = Xpath('//*[@class="content"]/a/@href')
+            urls = selector.parse_detail(data)
+            for url in urls:
+                # 添加到url列表中
+                _url = 'http://www.jianshu.com' + url
+                seed = Seed('http://www.jianshu.com{}'.format(url),self.parser,headers=headers_)
+                self.q.put_nowait(seed)
+            #print(urls)
+        except BaseException as e:
+            self.logger.error(e)
+
+    async def parser(self,data):
+        try:
+            # print('jianshu parser',data)
+            title = Xpath('//section/h1/text()').parse_detail(data)[0]    
+            content = Xpath('//*[@id="__next"]/div[1]/div/div/section[1]/article',r_type='elstr').parse_detail(data)[0]        
+            content = re.sub(' src=".*?"', '', content)
+            content = content.replace('data-original-src="//', 'src="https://')
+        
+            content = content.replace('图片发自简书App', '')
+            # print(title)
+            # print(content)
+        except BaseException as e:
+            self.logger.error(e)

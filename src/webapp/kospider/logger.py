@@ -9,5 +9,5 @@ def get_logger(logname):
 
     # 为logger添加的日志处理器
     Logger.addHandler(console_handler)
-    Logger.setLevel(logging.INFO)
+    Logger.setLevel(logging.DEBUG)
     return Logger

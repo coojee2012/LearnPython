@@ -1,8 +1,9 @@
-import logging; logging.basicConfig(level=logging.INFO)
+import logging
 import asyncio,aioredis
 import traceback
 from config import config
 
+logging.basicConfig(level=logging.DEBUG)
 class Dredis:
     _reids_pool = None
 
@@ -15,6 +16,7 @@ class Dredis:
                 minsize=config.redis.minsize, 
                 maxsize=config.redis.maxsize, 
                 loop=loop)
+            logging.info('redis pool inited')
         else:
             logging.info('redis pool had inited')
     

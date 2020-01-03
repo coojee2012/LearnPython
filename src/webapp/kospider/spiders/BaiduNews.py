@@ -1,11 +1,11 @@
 import asyncio
 from kospider.Spider import Spider
-
+from kospider.logger import get_logger
 class BaiduNews(Spider):
-    def __init__(self,session):
-        self.session = session
-    async def start(self):
-        print('BaiduNews Spider start')
+    def __init__(self,queue):
+        self.q = queue
+        self.logger = get_logger('BaiduNews Spider')
+    async def __start(self):
+        self.logger.info('BaiduNews Spider start')
         await asyncio.sleep(10)
-        print('BaiduNews Spider end')
-        pass
+        self.logger.info('BaiduNews Spider end')

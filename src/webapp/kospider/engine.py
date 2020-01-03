@@ -2,6 +2,7 @@ import os
 import sys
 import socket
 import asyncio
+from asyncio import Lock
 import aiohttp
 import types
 from datetime import datetime
@@ -16,8 +17,10 @@ except ImportError:
 from kospider.Spider import Spider
 from kospider.Seed import Seed
 from kospider.logger import get_logger
+from kospider.CrawlProxy import CrawlProxy
 
 MAX_TASKS = 100
+MIN_PROXY_COUNT = 10
 class Engine:
     def __init__(self,loop=None):
         self.loop = loop or asyncio.get_event_loop()
@@ -27,21 +30,29 @@ class Engine:
                                          use_dns_cache=True)
         self.session = aiohttp.ClientSession(loop=self.loop, connector=self.conn)
         self.q = asyncio.Queue(loop=loop, maxsize=MAX_TASKS)
+        
+        self.crawlProxy = CrawlProxy(self.loop)
+        self.lock = Lock()
+        self.proxies = []
+
         self.logger = get_logger('engine')
     
 
     def run(self):
         self.logger.info('Spider Engine started!')
         start_time = datetime.now()
-        loop = asyncio.get_event_loop()
+        # loop = asyncio.get_event_loop()
         try:
-            loop.run_until_complete(self.crawler())
+            self.loop.run_until_complete(self.crawler())
             # self.session.close()
         except KeyboardInterrupt:
             for task in asyncio.Task.all_tasks():
                 task.cancel()
-            loop.run_forever()
+            # loop.stop()
+            # loop.run_forever()
         finally:
+            self.session.closed()
+            # loop.close()
             end_time = datetime.now()
             self.logger.info('Time usage: {}'.format(end_time - start_time))
 
@@ -53,16 +64,20 @@ class Engine:
 
         for w in workers:
             w.cancel()
+        await asyncio.sleep(5 * 60)
+        await self.crawler() # 重新一直运行下去
         
     async def worker(self):
         try:
             while True:
+                # await self.get_proxy_pool()
                 task = await self.q.get()
                 if isinstance(task,Spider):
                     await task.start()
                 elif isinstance(task,Seed):
                     data = await self.fetch(**task)
-                    await task.callback(data)
+                    if data != None:
+                        await task.callback(data)
                 self.q.task_done()
 
                 """告诉队列 处理完毕"""
@@ -71,7 +86,7 @@ class Engine:
 
     async def init_spiders(self):
         old_path = os.path.dirname(os.path.abspath(__file__))
-        print('old_path',old_path)
+        #print('old_path',old_path)
         for dirName, subdirList, fileList in os.walk('/Users/lynn/xcode/LearnPython/src/webapp/kospider/spiders'):
             sys.path.append(dirName)
             for fname in fileList:
@@ -79,7 +94,7 @@ class Engine:
                     mod_name = fname.split('.')[0]
                     mod = __import__(mod_name, globals(), locals())
                     for attr in dir(mod):
-                        print(attr)
+                        #print(attr)
                         if attr != mod_name: # 定义蜘蛛的文件名必须和类名一致
                             continue
                         fn = getattr(mod, attr)
@@ -93,9 +108,9 @@ class Engine:
 
     async def fetch(self, url,  headers=None, data_type='normal', proxy=None,**kw):
         try:
-            print("url is {} proxy {}".format(url, proxy))
+            #print("url is {} proxy {}".format(url, proxy))
             async with self.session.get(url, headers=headers, proxy=proxy) as r:
-                print("get {} status_code is {}".format(url, r.status))
+                #print("get {} status_code is {} charset is {}".format(url, r.status, r.charset))
                 if r.status == 200:
                     if data_type == 'image':
                         data = await r.read()
@@ -103,8 +118,14 @@ class Engine:
                         data = await r.text()
                     return data
                 else:
-                    print("get {} is err: {}".format(url, r.status))
+                    self.logger.error("get {} is err: {}".format(url, r.status))
                     return None
         except Exception as e:
-            print("err is {}".format(e))
+            self.logger.error("err is {}".format(e))
             return None
+
+    async def get_proxy_pool(self):
+        async with self.lock:
+            if len(self.proxies) <= MIN_PROXY_COUNT:
+                self.proxies = await self.crawlProxy.run(self.session)
+                print(self.proxies)
