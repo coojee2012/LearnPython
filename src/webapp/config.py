@@ -21,8 +21,8 @@ class Conf:
         })
         self.mysql = type("mysql", (object,), {
             "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
-            "port": int(os.getenv("MYSQL_PORT", "3306")),
-            "password": os.getenv("MYSQL_PASSWORD", "root"),
+            "port": int(os.getenv("MYSQL_PORT", "3307")),
+            "password": os.getenv("MYSQL_PASSWORD", "1234"),
             "user": os.getenv("MYSQL_USER", "root"),
             "database": os.getenv("MYSQL_DATABASE", "awesome"),
             "charset": os.getenv("MYSQL_CHARSET", "utf8"),
